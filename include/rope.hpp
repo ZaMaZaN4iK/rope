@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <string>
 
 #include <boost/make_unique.hpp>
 
@@ -108,6 +109,7 @@ public:
     using size_type = size_t;
     using reference = value_type&;
     using const_reference = const value_type&;
+
     using handle = std::unique_ptr<rope_node<cont_type>>;
 
     // CONSTRUCTORS
@@ -149,19 +151,35 @@ public:
     }
 
     // Get the character at the given position in the represented string
+    reference at(size_t index)
+    {
+        if (this->root_ == nullptr)
+        {
+            throw ERROR_OOB_ROPE;
+        }
+        return this->root_->get_item_safe(index);
+    }
+
+    // Get the character at the given position in the represented string
     const_reference at(size_t index) const
     {
         if (this->root_ == nullptr)
         {
             throw ERROR_OOB_ROPE;
         }
-        return this->root_->getCharByIndex(index);
+        return this->root_->get_item_safe(index);
     }
 
     // Get the character at the given position in the represented string
     const_reference operator[](size_t index) const
     {
-        return this->root_->getCharByIndex(index);
+        return this->root_->get_item(index);
+    }
+
+    // Get the character at the given position in the represented string
+    reference operator[](size_t index)
+    {
+        return this->root_->get_item(index);
     }
 
     // Return the substring of length (len) beginning at the specified index
@@ -172,7 +190,7 @@ public:
         {
             throw ERROR_OOB_ROPE;
         }
-        return this->root_->getSubstring(start, len);
+        return this->root_->substr(start, len);
     }
 
     // Determine if rope is balanced
@@ -379,6 +397,11 @@ private:
     handle root_;
 
 }; // class rope
+
+using crope  = rope<std::string>;
+using wcrope = rope<std::wstring>;
+
+
 
 } // namespace container
 } // namespace boost

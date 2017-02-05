@@ -34,6 +34,10 @@ class rope_node
 public:
     using cont_type = T;
     using value_type = typename T::value_type;
+    using size_type = size_t;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+
     using handle = std::unique_ptr<rope_node>;
 
     // CONSTRUCTORS
@@ -86,34 +90,55 @@ public:
         return this->weight_ + tmp;
     }
 
-    value_type getCharByIndex(size_t index) const
+
+    reference get_item(size_t index)
     {
         size_t w = this->weight_;
         // if node is a leaf, return the character at the specified index
         if (this->is_leaf())
         {
-            if (index >= this->weight_)
-            {
-                throw ERROR_OOB_NODE;
-            }
-            else
-            {
-                return this->fragment_[index];
-            }
+            return this->fragment_[index];
             // else search the appropriate child node
         }
         else
         {
             if (index < w)
             {
-                return this->left_->getCharByIndex(index);
+                return this->left_->get_item(index);
             }
             else
             {
-                return this->right_->getCharByIndex(index - w);
+                return this->right_->get_item(index - w);
             }
         }
     }
+
+    reference get_item_safe(size_t index)
+    {
+        size_t w = this->weight_;
+        // if node is a leaf, return the character at the specified index
+        if (this->is_leaf())
+        {
+            if(index >= weight_)
+            {
+                throw ERROR_OOB_NODE;
+            }
+            return this->fragment_[index];
+            // else search the appropriate child node
+        }
+        else
+        {
+            if (index < w)
+            {
+                return this->left_->get_item_safe(index);
+            }
+            else
+            {
+                return this->right_->get_item_safe(index - w);
+            }
+        }
+    }
+
 
     // Get the substring of (len) chars beginning at index (start)
     cont_type substr(size_t start, size_t len) const
